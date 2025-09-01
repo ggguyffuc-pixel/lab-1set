@@ -1,129 +1,85 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import "./App.css";
 
-export default function App() {
-  const [amount, setAmount] = useState("");
-  const [parts, setParts] = useState([]);     
-  const [shown, setShown] = useState(0);      
-  const [lastAmount, setLastAmount] = useState(null); 
+function App() {
+  const [input1, setInput1] = useState("");
+  const [input2, setInput2] = useState("");
+  const [op, setOp] = useState("");
+  const [output, setOutput] = useState("");
+  const [currentInput, setCurrentInput] = useState("in1");
 
-  const splitNumber = (num) => {
-    const values = [200, 100, 50, 20, 10, 5, 1];
-    const result = [];
-    let remaining = num;
-
-    for (const v of values) {
-      if (remaining >= v) {
-        const count = Math.floor(remaining / v);
-        result.push({ count, value: v });
-        remaining %= v;
-      }
+  const handleNumberClick = (value) => {
+    if (currentInput === "in1") {
+      setInput1(input1 + value);
+    } else {
+      setInput2(input2 + value);
     }
-    return result;
   };
 
-  const handleClick = () => {
-    const num = parseInt(amount, 10);
+  const calculate = () => {
+    const a = parseFloat(input1) || 0;
+    const b = parseFloat(input2) || 0;
+    let result = 0;
 
-    if (isNaN(num) || num <= 0) {
-      setParts([]);
-      setShown(0);
-      setLastAmount(null);
-      return;
-    }
+    if (op === "+") result = a + b;
+    if (op === "-") result = a - b;
+    if (op === "*") result = a * b;
+    if (op === "/") result = a / b;
 
-    
-    if (parts.length === 0 || num !== lastAmount) {
-      const calc = splitNumber(num);
-      setParts(calc);
-      setShown(calc.length > 0 ? 1 : 0);
-      setLastAmount(num);
-      return;
-    }
-
-    
-    if (shown < parts.length) {
-      setShown(shown + 1);
-    }
-    
-  };
-
-  const handleAmountChange = (e) => {
-    setAmount(e.target.value);
-    
-    setParts([]);
-    setShown(0);
-    setLastAmount(null);
+    setOutput(result);
   };
 
   return (
-    <div style={styles.container}>
-   
-
-      <div style={styles.inputBox}>
+    <div className="calculator-box">
+      <div className="top-row">
         <input
-          type="number"
-          value={amount}
-          onChange={handleAmountChange}
-          style={styles.input}
-       
+          type="text"
+          value={input1}
+          onClick={() => setCurrentInput("in1")}
+          readOnly
         />
-        <button onClick={handleClick} style={styles.button} title="إظهار التالي">
-          ✔
-        </button>
+        <input type="text" id="opBox" value={op} readOnly />
+        <input
+          type="text"
+          value={input2}
+          onClick={() => setCurrentInput("in2")}
+          readOnly
+        />
+        <span className="equal-sign">=</span>
+        <input type="text" value={output} readOnly />
       </div>
 
-      <div style={styles.resultBox}>
-        {shown === 0 ? (
-          <p style={{ opacity: 0.6, margin: 0 }}></p>
-        ) : (
-          parts.slice(0, shown).map((item, i) => (
-            <div key={i}>
-              {item.count} × {item.value}
-            </div>
-          ))
-        )}
+      <div className="grid">
+        <div className="numbers">
+          {["7","8","9","4","5","6","1","2","3","0",".","Ans"].map((n) => (
+            <button
+              key={n}
+              onClick={() => {
+                if (n === "Ans") {
+                  handleNumberClick(output.toString());
+                } else {
+                  handleNumberClick(n);
+                }
+              }}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+
+        <div className="operators">
+          {["+", "-", "*", "/"].map((o) => (
+            <button key={o} onClick={() => setOp(o)}>
+              {o}
+            </button>
+          ))}
+          <button id="equal" onClick={calculate}>
+            =
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-
-const styles = {
-  container: {
-    border: "3px solid orangered",
-    width: 320,
-    margin: "50px auto",
-    padding: 20,
-    borderRadius: 12,
-    textAlign: "center",
-    background: "width",
-    fontFamily: "Arial, sans-serif",
-  },
-  title: { marginBottom: 20, color: "orangered" },
-  inputBox: { display: "flex", gap: 0, marginBottom: 20 },
-  input: {
-    flex: 1,
-    padding: "10px",
-    fontSize: 18,
-    border: "2px solid orangered",
-    borderRadius: "6px 0 0 6px",
-    outline: "none",
-  },
-  button: {
-    background: "orangered",
-    color: "#fff",
-    border: "none",
-    padding: "10px 20px",
-    fontSize: 18,
-    cursor: "pointer",
-    borderRadius: "0 6px 6px 0",
-  },
-  resultBox: {
-    border: "2px solid orangered",
-    padding: 15,
-    textAlign: "left",
-    minHeight: 110,
-    borderRadius: 6,
-    background: "#fff",
-  },
-};
+export default App;
